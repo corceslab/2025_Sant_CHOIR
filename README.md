@@ -46,16 +46,16 @@ This folder contains code to run 15 different clustering methods, including CHOI
 
 ## Publicly available datasets used in the benchmarking assessments
 
-**Wang et al. 2022 10x Multiome human retina data** - GEO accession number: GSE196235
+**Wang et al. 2022 10x Multiome human retina data** - GEO accession number: [GSE196235](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE196235)
 
-**Kinker et al. 2020 scRNA-seq cancer cell line data** - GEO accession number: GSE157220
+**Kinker et al. 2020 scRNA-seq cancer cell line data** - GEO accession number: [GSE157220](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE157220)
 
-**Yang et al. 2021 scRNA-seq A375 cancer cell line data** - GEO accession number: GSE164614
+**Yang et al. 2021 scRNA-seq A375 cancer cell line data** - GEO accession number: [GSE164614](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE164614)
 
-**Dave et al. 2023 scRNA-seq T47D cancer cell line data** - GEO accession number: GSE182694
+**Dave et al. 2023 scRNA-seq T47D cancer cell line data** - GEO accession number: [GSE182694](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE182694)
 
-**Hao et al. 2021 CITE-seq human PBMC data** - GEO accession number: GSE164378
+**Hao et al. 2021 CITE-seq human PBMC data** - GEO accession number: [GSE164378](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE164378)
 
-**Srivatsan et al. 2021 sci-Space whole mouse embryo data** - GEO accession number: GSE166692
+**Srivatsan et al. 2021 sci-Space whole mouse embryo data** - GEO accession number: [GSE166692](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE166692)
 
 **Note 1.** File paths in some of the provided scripts are hard-coded.
