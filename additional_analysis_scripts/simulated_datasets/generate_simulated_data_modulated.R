@@ -7,6 +7,7 @@ library(Seurat)
 library(scater)
 library(dplyr)
 library(stringr)
+library(scDesign3)
 
 # Define args
 groups = 5
