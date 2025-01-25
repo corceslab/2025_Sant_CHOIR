@@ -16,7 +16,6 @@ parameter_file <- args[4]
 parameter_key <- args[5]
 cluster_parameter_index <- args[6]
 
-
 # Import method list & get parameters for this run
 cluster_parameter_list <- read.csv(parameter_file)
 cluster_parameter_list$Index <- seq(1:nrow(cluster_parameter_list))
@@ -33,6 +32,7 @@ if (cluster_method %in% c("PanoView", "GiniClust3", "SCCAF", "Cytocipher")) {
 # Run selected method ---------------------------
 
 output <- switch(cluster_method,
+                 "ArchR" = run_ArchR(input_dir, cluster_parameter_index, cluster_parameters, temp_dir),
                  "CHOIR" = run_CHOIR(input_dir, cluster_parameter_index, cluster_parameters, temp_dir, parameter_key),
                  "CIDR" = run_CIDR(input_dir, cluster_parameter_index, cluster_parameters),
                  "Cytocipher" = run_Cytocipher(input_dir, cluster_parameter_index,
@@ -43,7 +43,9 @@ output <- switch(cluster_method,
                                                as.character(cluster_parameters$parameter4_value),
                                                as.integer(cluster_parameters$parameter5_value),
                                                as.integer(cluster_parameters$parameter6_value),
-                                               as.character(cluster_parameters$parameter7_value)),
+                                               as.character(cluster_parameters$parameter7_value),
+                                               as.character(cluster_parameters$parameter8_value),
+                                               as.character(cluster_parameters$parameter9_value)),
                  "dropClust" = run_dropClust(input_dir, cluster_parameter_index, cluster_parameters),
                  "GiniClust3" = run_GiniClust3(input_dir, cluster_parameter_index,
                                                cluster_parameters$input_data1,
@@ -52,24 +54,30 @@ output <- switch(cluster_method,
                                                as.numeric(cluster_parameters$parameter3_value),
                                                as.numeric(cluster_parameters$parameter4_value),
                                                cluster_parameters$parameter5_value,
-                                               as.integer(cluster_parameters$parameter6_value)),
+                                               as.integer(cluster_parameters$parameter6_value),
+                                               as.character(cluster_parameters$parameter7_value),
+                                               as.character(cluster_parameters$parameter8_value)),
                  "PanoView" = run_PanoView(input_dir, cluster_parameter_index,
                                            cluster_parameters$input_data1,
                                            as.numeric(cluster_parameters$parameter1_value),
                                            as.numeric(cluster_parameters$parameter2_value),
                                            as.integer(cluster_parameters$parameter3_value)),
                  "RaceID3" = run_RaceID3(input_dir, cluster_parameter_index, cluster_parameters),
+                 "SAFEclustering" = run_SAFEclustering(input_dir, cluster_parameter_index, cluster_parameters),
                  "SC3" = run_SC3(input_dir, cluster_parameter_index, cluster_parameters),
                  "SCCAF" = run_SCCAF(input_dir, cluster_parameter_index,
                                      cluster_parameters$input_data1,
                                      as.numeric(cluster_parameters$parameter1_value),
                                      as.numeric(cluster_parameters$parameter2_value),
                                      as.integer(cluster_parameters$parameter3_value),
-                                     as.character(cluster_parameters$parameter4_value)),
+                                     as.character(cluster_parameters$parameter4_value),
+                                     as.character(cluster_parameters$parameter5_value),
+                                     as.character(cluster_parameters$parameter6_value)),
                  "scCAN" = run_scCAN(input_dir, cluster_parameter_index, cluster_parameters),
                  "scSHC" = run_scSHC(input_dir, cluster_parameter_index, cluster_parameters),
                  "Seurat" = run_Seurat(input_dir, cluster_parameter_index, cluster_parameters),
                  "SHARP" = run_SHARP(input_dir, cluster_parameter_index, cluster_parameters),
+                 "Signac" = run_Signac(input_dir, cluster_parameter_index, cluster_parameters),
                  "SIMLR" = run_SIMLR(input_dir, cluster_parameter_index, cluster_parameters),
                  "Spectrum" = run_Spectrum(input_dir, cluster_parameter_index, cluster_parameters))
 

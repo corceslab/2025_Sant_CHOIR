@@ -104,9 +104,9 @@ cluster_stats %>% group_by(method, index, dataset, default) %>%
   geom_point(data = . %>% filter(default == TRUE), shape = 23, alpha = 1, fill = "gold") +
   xlab("Method") +
   ylab("Number of clusters") +
-  scale_x_discrete(limits = c("CHOIR", "CIDR", "Cytocipher","GiniClust3",
+  scale_x_discrete(limits = c("CHOIR", "CIDR", "Cytocipher","GiniClust3", "SAFEclustering",
                               "SCCAF", "scSHC", "Seurat"),
-                   breaks = c("CHOIR", "CIDR", "Cytocipher","GiniClust3",
+                   breaks = c("CHOIR", "CIDR", "Cytocipher","GiniClust3", "SAFEclustering",
                               "SCCAF", "scSHC", "Seurat")) +
   NoLegend() +
   scale_alpha_manual(values = c(1,0)) +

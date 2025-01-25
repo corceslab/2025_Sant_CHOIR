@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-# This script compiles metrics for the 100 simulated datasets
+# This script compiles metrics for Simulated Datasets 1–100
 # ---------------------------------------------------------------------------
 library(superheat)
 library(dplyr)

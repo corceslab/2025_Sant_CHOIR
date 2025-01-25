@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-# This script generates plots for the simulated datasets
+# This script generates plots for the simulated datasets 
 # ---------------------------------------------------------------------------
 library(pdfCluster)
 library(ggbeeswarm)
@@ -12,6 +12,7 @@ library(CHOIR)
 # Get max values
 groups <- 1
 size <- 500
+simulation_set <- "Splatter_1"
 
 max_maxvmem <- 0
 max_mem <- 0
@@ -22,10 +23,7 @@ max_umap <- 0
 
 for (i in c(1,2,3,4,5)) {
   print(i)
-  input_dir <- paste0("/Volumes/Mucke-Sequencing/Cathrine/cluster_benchmarking/datasets/Splatter_", groups, "/sim_", size, "_", i)
-  if (i %in% prob) {
-    input_dir <- paste0("/Volumes/Mucke-Sequencing/Cathrine/cluster_benchmarking/datasets/Splat_", groups, "/sim_", size, "_", i)
-  }
+  input_dir <- paste0("/Volumes/Mucke-Sequencing/Cathrine/cluster_benchmarking/datasets/", simulation_set, "/sim_", size, "_", i)
   cluster_parameter_list <- read.csv(paste0(input_dir, "/intermediate_files/clusters/compiled_clusters_metrics.csv"))
 
   # Max values
@@ -47,10 +45,7 @@ for (i in c(1,2,3,4,5)) {
 for (iteration in c(1,2,3,4,5)) {
   print(iteration)
   # Import 
-  input_dir <- paste0("/Volumes/Mucke-Sequencing/Cathrine/cluster_benchmarking/datasets/Splatter_", groups, "/sim_", size, "_", iteration)
-  if (iteration %in% prob) {
-    input_dir <- paste0("/Volumes/Mucke-Sequencing/Cathrine/cluster_benchmarking/datasets/Splat_", groups, "/sim_", size, "_", iteration)
-  }
+  input_dir <- paste0("/Volumes/Mucke-Sequencing/Cathrine/cluster_benchmarking/datasets/", simulation_set, "/sim_", size, "_", iteration)
   cluster_parameter_list <- read.csv(paste0(input_dir, "/intermediate_files/clusters/compiled_clusters_metrics.csv"))
   
   # Zero out memory and time if complete and not measured
@@ -172,10 +167,12 @@ for (iteration in c(1,2,3,4,5)) {
     xlab("Method") +
     ylab("Time (h)") + 
     scale_y_continuous(limits = time_limits, breaks = time_breaks) +
-    scale_x_discrete(limits = c("CHOIR", "CIDR", "Cytocipher","dropClust", "GiniClust3", "PanoView", "RaceID3", "SC3",
-                                "SCCAF", "scCAN", "scSHC", "Seurat", "SHARP", "SIMLR", "Spectrum"),
-                     breaks = c("CHOIR", "CIDR", "Cytocipher","dropClust", "GiniClust3", "PanoView", "RaceID3", "SC3",
-                                "SCCAF", "scCAN", "scSHC", "Seurat", "SHARP", "SIMLR", "Spectrum")) +
+    scale_x_discrete(limits = c("CHOIR", "CIDR", "Cytocipher","dropClust", "GiniClust3", "PanoView", 
+                                "SAFEclustering", "RaceID3", "SC3", "SCCAF", "scCAN", "scSHC", 
+                                "Seurat", "SHARP", "SIMLR", "Spectrum"),
+                     breaks = c("CHOIR", "CIDR", "Cytocipher","dropClust", "GiniClust3", "PanoView", 
+                                "SAFEclustering", "RaceID3", "SC3", "SCCAF", "scCAN", "scSHC", 
+                                "Seurat", "SHARP", "SIMLR", "Spectrum")) +
     NoLegend() +
     scale_alpha_manual(values = c(1,0))
   ggsave(paste0("~/Desktop/CHOIR_simulated_plots/plot_", groups, "_", size, "_", iteration, "_time.pdf"), width = 5, height = 4, units = "in")
@@ -211,10 +208,12 @@ for (iteration in c(1,2,3,4,5)) {
     geom_point(data = . %>% filter(default == TRUE), shape = 23, alpha = 1, fill = "gold") +
     xlab("Method") +
     ylab("Number of clusters") +
-    scale_x_discrete(limits = c("CHOIR", "CIDR", "Cytocipher","dropClust", "GiniClust3", "PanoView", "RaceID3", "SC3",
-                                "SCCAF", "scCAN", "scSHC", "Seurat", "SHARP", "SIMLR", "Spectrum"),
-                     breaks = c("CHOIR", "CIDR", "Cytocipher","dropClust", "GiniClust3", "PanoView", "RaceID3", "SC3",
-                                "SCCAF", "scCAN", "scSHC", "Seurat", "SHARP", "SIMLR", "Spectrum")) +
+    scale_x_discrete(limits = c("CHOIR", "CIDR", "Cytocipher","dropClust", "GiniClust3", "PanoView", 
+                                "SAFEclustering", "RaceID3", "SC3", "SCCAF", "scCAN", "scSHC", 
+                                "Seurat", "SHARP", "SIMLR", "Spectrum"),
+                     breaks = c("CHOIR", "CIDR", "Cytocipher","dropClust", "GiniClust3", "PanoView", 
+                                "SAFEclustering", "RaceID3", "SC3", "SCCAF", "scCAN", "scSHC", 
+                                "Seurat", "SHARP", "SIMLR", "Spectrum")) +
     NoLegend() +
     scale_alpha_manual(values = c(1,0)) +
     scale_y_continuous(breaks = num_breaks, labels = num_labels, limits = num_limits)
@@ -234,10 +233,12 @@ for (iteration in c(1,2,3,4,5)) {
       geom_point(data = . %>% filter(default == TRUE), shape = 23, alpha = 1, fill = "gold") +
       xlab("Method") +
       ylab("Adjusted Rand Index") +
-      scale_x_discrete(limits = c("CHOIR", "CIDR", "Cytocipher","dropClust", "GiniClust3", "PanoView", "RaceID3", "SC3",
-                                  "SCCAF", "scCAN", "scSHC", "Seurat", "SHARP", "SIMLR", "Spectrum"),
-                       breaks = c("CHOIR", "CIDR", "Cytocipher","dropClust", "GiniClust3", "PanoView", "RaceID3", "SC3",
-                                  "SCCAF", "scCAN", "scSHC", "Seurat", "SHARP", "SIMLR", "Spectrum")) +
+      scale_x_discrete(limits = c("CHOIR", "CIDR", "Cytocipher","dropClust", "GiniClust3", "PanoView", 
+                                  "SAFEclustering", "RaceID3", "SC3", "SCCAF", "scCAN", "scSHC", 
+                                  "Seurat", "SHARP", "SIMLR", "Spectrum"),
+                       breaks = c("CHOIR", "CIDR", "Cytocipher","dropClust", "GiniClust3", "PanoView", 
+                                  "SAFEclustering", "RaceID3", "SC3", "SCCAF", "scCAN", "scSHC", 
+                                  "Seurat", "SHARP", "SIMLR", "Spectrum")) +
       NoLegend() +
       scale_alpha_manual(values = c(1,0)) +
       scale_color_manual(values = c("dark grey", "black")) +

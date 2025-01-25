@@ -56,10 +56,25 @@ Other_methods_clusters <- read.csv(paste0(input_dir,
                                           "/compiled_clusters_cluster_parameter_list_RNA_real_batch.csv"))
 rownames(Other_methods_clusters) <- Other_methods_clusters$CellID
 Other_methods_clusters <- Other_methods_clusters[seurat_object@meta.data$CellID,]
+# scTriangulate
+scTriangulate_clusters <- read.csv(paste0(input_dir,
+                                          "/sctriangulate_clusters1.csv"))
+rownames(scTriangulate_clusters) <- scTriangulate_clusters$CellID
+scTriangulate_clusters <- scTriangulate_clusters[seurat_object@meta.data$CellID,]
+scTriangulate_clusters2 <- read.csv(paste0(input_dir,
+                                           "/sctriangulate_clusters2.csv"))
+rownames(scTriangulate_clusters2) <- scTriangulate_clusters2$CellID
+scTriangulate_clusters2 <- scTriangulate_clusters2[seurat_object@meta.data$CellID,]
+scTriangulate_clust <- data.frame(CellID = scTriangulate_clusters$CellID,
+                                  scTriangulate_orig_1 = scTriangulate_clusters$scTriangulate_1,
+                                  scTriangulate_orig_2 = scTriangulate_clusters2$scTriangulate_2,
+                                  scTriangulate_1 = as.numeric(as.factor(scTriangulate_clusters$scTriangulate_1)),
+                                  scTriangulate_2 = as.numeric(as.factor(scTriangulate_clusters2$scTriangulate_2)))
 
 # Add clustering results to Seurat object
 seurat_object@meta.data <- cbind(seurat_object@meta.data, CHOIR_clusters[,-1])
 seurat_object@meta.data <- cbind(seurat_object@meta.data, Other_methods_clusters[,-1])
+seurat_object@meta.data <- cbind(seurat_object@meta.data, scTriangulate_clust[,-1])
 seurat_object@meta.data$CHOIR_parent_clusters <- choir_data$clusters$full_tree[seurat_object@meta.data$CellID, "L5"]
 
 # UMAPs for clusters
@@ -285,7 +300,7 @@ spatial_distance <- data.frame(Label = NULL, CellID = NULL, Cluster = NULL,
                                slide_area = NULL, mean_X = NULL, mean_Y = NULL,
                                n_cells = NULL, dist_from_centroid = NULL)
 for (current_label in c("CHOIR", "Cytocipher", "GiniClust3",
-                        "SCCAF", "scSHC", "Seurat")) {
+                        "SCCAF", "scSHC", "Seurat", "scTriangulate")) {
   if (current_label == "CHOIR") {
     params <- 1:7
   } else if (current_label == "Cytocipher") {
@@ -298,7 +313,9 @@ for (current_label in c("CHOIR", "Cytocipher", "GiniClust3",
     params <- 1:13
   } else if (current_label == "Seurat") {
     params <- 1:28
-  } 
+  } else if (current_label == "scTriangulate") {
+    params <- 1:2
+  }
   for (p in 1:length(params)) {
     current_param <- paste0(current_label, "_", params[p])
     print(current_param)
@@ -396,3 +413,43 @@ time_df <- time_df %>%
 time_df %>%
   ggplot(aes(x = method, y = time_secs/3600, color = default)) +
   geom_beeswarm()
+
+# ---------------------------------------------------------------------------
+# Addition during revision: scTriangulate evaluation
+# ---------------------------------------------------------------------------
+
+# Check individual parameter settings for clusters missed/identified
+# Find cell types missed by CHOIR
+
+seurat_object@meta.data %>%
+  dplyr::filter(CHOIR_1 == 32) %>%
+  dplyr::group_by(scTriangulate_1) %>%
+  summarise(n = n()) %>%
+  arrange(-n) %>% head()
+
+seurat_object@meta.data %>%
+  dplyr::filter(scTriangulate_1 == 11) %>%
+  dplyr::group_by(CHOIR_1) %>%
+  summarise(n = n()) %>%
+  arrange(-n) %>% head()
+
+seurat_object@meta.data %>%
+  dplyr::filter(CHOIR_1 == 32) %>%
+  dplyr::group_by(slide_id) %>%
+  summarise(n = n())
+
+seurat_object@meta.data %>% group_by(Seurat_1, CHOIR_1) %>% summarise(n = n()) %>% dplyr::filter(!(Seurat_1 == 0 & CHOIR_1 == 1)) %>%
+  ggplot(aes(x = Seurat_1, y = CHOIR_1, color = n)) +
+  theme_classic() +
+  geom_point() +
+  scale_color_gradient(low = "grey90", high = "red") +
+  scale_x_continuous(breaks = 0:50) +
+  scale_y_continuous(breaks = 0:50)
+
+seurat_object@meta.data %>% group_by(CHOIR_1, Seurat_1) %>% summarise(n = n()) %>% dplyr::filter(!(Seurat_1 == 0 & CHOIR_1 == 1)) %>%
+  ggplot(aes(x = CHOIR_1, y = Seurat_1, color = n)) +
+  theme_classic() +
+  geom_point() +
+  scale_color_gradient(low = "grey90", high = "red") +
+  scale_x_continuous(breaks = 0:50) +
+  scale_y_continuous(breaks = 0:50)

@@ -40,12 +40,19 @@ cluster_method <- cluster_parameters$method
 
 # Import
 original_clusters <- read.csv(paste0(input_dir, "/intermediate_files/clusters/compiled_clusters_", parameter_key,".csv"))
-cluster_metrics <- read.csv(paste0(input_dir, "/intermediate_files/clusters/compiled_clusters_metrics.csv"))
-current_index_metrics <- cluster_metrics %>% 
-  dplyr::filter(list == parameter_key_name,
-                index == cluster_parameter_index)
 
-if (current_index_metrics$correct_n_clusters == TRUE & 
+if (method != "SAFEclustering") {
+  cluster_metrics <- read.csv(paste0(input_dir, "/intermediate_files/clusters/compiled_clusters_metrics.csv"))
+  current_index_metrics <- cluster_metrics %>%
+    dplyr::filter(list == parameter_key_name,
+                  index == cluster_parameter_index)
+} else {
+  cluster_metrics <- read.csv(paste0(input_dir, "/intermediate_files/clusters/SAFEclustering_metrics.csv"))
+  current_index_metrics <- cluster_metrics %>%
+    dplyr::filter(index == cluster_parameter_index)
+}
+
+if (current_index_metrics$correct_n_clusters == TRUE &
     current_index_metrics$ARI_0.9 == TRUE &
     current_index_metrics$status == "complete") {
   proceed <- TRUE
@@ -53,22 +60,22 @@ if (current_index_metrics$correct_n_clusters == TRUE &
   
   # Generate subsetted matrix
   cell_IDs <- original_clusters[original_clusters[, paste0("Parameters_", cluster_parameter_index)] == cluster_number,]$CellID
-  if (method %in% c("RaceID3", "scSHC_new", "SC3", "CIDR", "dropClust", "SHARP")) {
+  if (method %in% c("RaceID3", "scSHC_new", "SC3", "CIDR", "dropClust", "SHARP", "SAFEclustering")) {
     count_matrix <- readRDS(paste0(input_dir, "/intermediate_files/preprocessed/RNA_matrix_raw.rds"))
     count_matrix <- count_matrix[,cell_IDs]
-    saveRDS(count_matrix, paste0(output_dir, "/intermediate_files/preprocessed/RNA_matrix_raw_", 
-                                method, "_", cluster_parameter_index, "_", cluster_number, ".rds"))
+    saveRDS(count_matrix, paste0(output_dir, "/intermediate_files/preprocessed/RNA_matrix_raw_",
+                                 method, "_", cluster_parameter_index, "_", cluster_number, ".rds"))
     input_data <- paste0("RNA_matrix_raw_", method, "_", cluster_parameter_index, "_", cluster_number)
     cluster_parameters$input_data1 <- input_data
-  } 
-  if (!method %in% c("RaceID3", "scSHC_new", "CIDR", "dropClust", "SHARP")) {
+  }
+  if (!method %in% c("RaceID3", "scSHC_new", "CIDR", "dropClust", "SHARP", "SAFEclustering")) {
     norm_matrix <- readRDS(paste0(input_dir, "/intermediate_files/preprocessed/RNA_matrix_norm_log.rds"))
     norm_matrix <- norm_matrix[,cell_IDs]
     if (method %in% c("Cytocipher", "PanoView", "GiniClust3", "SCCAF")) {
-      write.csv(as.matrix(norm_matrix), paste0(output_dir, "/intermediate_files/preprocessed/RNA_matrix_norm_log_", 
-                                    method, "_", cluster_parameter_index, "_", cluster_number, ".csv"))
+      write.csv(as.matrix(norm_matrix), paste0(output_dir, "/intermediate_files/preprocessed/RNA_matrix_norm_log_",
+                                               method, "_", cluster_parameter_index, "_", cluster_number, ".csv"))
     } else {
-      saveRDS(norm_matrix, paste0(output_dir, "/intermediate_files/preprocessed/RNA_matrix_norm_log_", 
+      saveRDS(norm_matrix, paste0(output_dir, "/intermediate_files/preprocessed/RNA_matrix_norm_log_",
                                   method, "_", cluster_parameter_index, "_", cluster_number, ".rds"))
     }
     input_data <- paste0("RNA_matrix_norm_log_", method, "_", cluster_parameter_index, "_", cluster_number)
@@ -78,7 +85,7 @@ if (current_index_metrics$correct_n_clusters == TRUE &
     cluster_parameters$input_data1 <- paste0("RNA_matrix_raw_", method, "_", cluster_parameter_index, "_", cluster_number)
     cluster_parameters$input_data1 <- paste0("RNA_matrix_norm_log_", method, "_", cluster_parameter_index, "_", cluster_number)
   }
-
+  
 } else {
   print("Skip this index")
   proceed <- FALSE
@@ -97,45 +104,46 @@ if (proceed == TRUE) {
   # Run selected method ---------------------------
   
   try(output <- switch(cluster_method,
-                   "CHOIR" = run_CHOIR(output_dir, cluster_parameter_index, cluster_parameters, temp_dir, parameter_key),
-                   "CIDR" = run_CIDR(output_dir, cluster_parameter_index, cluster_parameters),
-                   "Cytocipher" = run_Cytocipher(as.character(output_dir), as.character(cluster_parameter_index),
-                                                 as.character(input_data),
+                       "CHOIR" = run_CHOIR(output_dir, cluster_parameter_index, cluster_parameters, temp_dir, parameter_key),
+                       "CIDR" = run_CIDR(output_dir, cluster_parameter_index, cluster_parameters),
+                       "Cytocipher" = run_Cytocipher(as.character(output_dir), as.character(cluster_parameter_index),
+                                                     as.character(input_data),
+                                                     as.numeric(cluster_parameters$parameter1_value),
+                                                     as.numeric(cluster_parameters$parameter2_value),
+                                                     as.integer(cluster_parameters$parameter3_value),
+                                                     as.character(cluster_parameters$parameter4_value),
+                                                     as.integer(cluster_parameters$parameter5_value),
+                                                     as.integer(cluster_parameters$parameter6_value),
+                                                     as.character(cluster_parameters$parameter7_value)),
+                       "dropClust" = run_dropClust(output_dir, cluster_parameter_index, cluster_parameters),
+                       "GiniClust3" = run_GiniClust3(as.character(output_dir), as.character(cluster_parameter_index),
+                                                     as.character(input_data),
+                                                     cluster_parameters$parameter1_value,
+                                                     as.numeric(cluster_parameters$parameter2_value),
+                                                     as.numeric(cluster_parameters$parameter3_value),
+                                                     as.numeric(cluster_parameters$parameter4_value),
+                                                     cluster_parameters$parameter5_value,
+                                                     as.integer(cluster_parameters$parameter6_value)),
+                       "PanoView" = run_PanoView(output_dir, cluster_parameter_index,
+                                                 input_data,
                                                  as.numeric(cluster_parameters$parameter1_value),
                                                  as.numeric(cluster_parameters$parameter2_value),
-                                                 as.integer(cluster_parameters$parameter3_value),
-                                                 as.character(cluster_parameters$parameter4_value),
-                                                 as.integer(cluster_parameters$parameter5_value),
-                                                 as.integer(cluster_parameters$parameter6_value),
-                                                 as.character(cluster_parameters$parameter7_value)),
-                   "dropClust" = run_dropClust(output_dir, cluster_parameter_index, cluster_parameters),
-                   "GiniClust3" = run_GiniClust3(as.character(output_dir), as.character(cluster_parameter_index),
-                                                 as.character(input_data),
-                                                 cluster_parameters$parameter1_value,
-                                                 as.numeric(cluster_parameters$parameter2_value),
-                                                 as.numeric(cluster_parameters$parameter3_value),
-                                                 as.numeric(cluster_parameters$parameter4_value),
-                                                 cluster_parameters$parameter5_value,
-                                                 as.integer(cluster_parameters$parameter6_value)),
-                   "PanoView" = run_PanoView(output_dir, cluster_parameter_index,
-                                             input_data,
-                                             as.numeric(cluster_parameters$parameter1_value),
-                                             as.numeric(cluster_parameters$parameter2_value),
-                                             as.integer(cluster_parameters$parameter3_value)),
-                   "RaceID3" = run_RaceID3(output_dir, cluster_parameter_index, cluster_parameters),
-                   "SC3" = run_SC3(output_dir, cluster_parameter_index, cluster_parameters),
-                   "SCCAF" = run_SCCAF(as.character(output_dir), as.character(cluster_parameter_index),
-                                       as.character(input_data),
-                                       as.numeric(cluster_parameters$parameter1_value),
-                                       as.numeric(cluster_parameters$parameter2_value),
-                                       as.integer(cluster_parameters$parameter3_value),
-                                       as.character(cluster_parameters$parameter4_value)),
-                   "scCAN" = run_scCAN(output_dir, cluster_parameter_index, cluster_parameters),
-                   "scSHC" = run_scSHC(output_dir, cluster_parameter_index, cluster_parameters),
-                   "Seurat" = run_Seurat(output_dir, cluster_parameter_index, cluster_parameters),
-                   "SHARP" = run_SHARP(output_dir, cluster_parameter_index, cluster_parameters),
-                   "SIMLR" = run_SIMLR(output_dir, cluster_parameter_index, cluster_parameters),
-                   "Spectrum" = run_Spectrum(output_dir, cluster_parameter_index, cluster_parameters)))
+                                                 as.integer(cluster_parameters$parameter3_value)),
+                       "RaceID3" = run_RaceID3(output_dir, cluster_parameter_index, cluster_parameters),
+                       "SAFEclustering" = run_SAFEclustering(output_dir, cluster_parameter_index, cluster_parameters),
+                       "SC3" = run_SC3(output_dir, cluster_parameter_index, cluster_parameters),
+                       "SCCAF" = run_SCCAF(as.character(output_dir), as.character(cluster_parameter_index),
+                                           as.character(input_data),
+                                           as.numeric(cluster_parameters$parameter1_value),
+                                           as.numeric(cluster_parameters$parameter2_value),
+                                           as.integer(cluster_parameters$parameter3_value),
+                                           as.character(cluster_parameters$parameter4_value)),
+                       "scCAN" = run_scCAN(output_dir, cluster_parameter_index, cluster_parameters),
+                       "scSHC" = run_scSHC(output_dir, cluster_parameter_index, cluster_parameters),
+                       "Seurat" = run_Seurat(output_dir, cluster_parameter_index, cluster_parameters),
+                       "SHARP" = run_SHARP(output_dir, cluster_parameter_index, cluster_parameters),
+                       "SIMLR" = run_SIMLR(output_dir, cluster_parameter_index, cluster_parameters),
+                       "Spectrum" = run_Spectrum(output_dir, cluster_parameter_index, cluster_parameters)))
   
   # Output ---------------------------
   
