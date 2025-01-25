@@ -23,7 +23,7 @@ color_palette <- ClusteringBetaTest::CHOIRpalette(100)
 
 input_dir <- "/gladstone/corces/lab/users/cpetersen/cluster_benchmarking/Wang_2022_multiome"
 
-raw_matrix <- readRDS(paste0(input_dir, "/intermediate_files/preprocessed/RNA_matrix_noSoupX_raw.rds"))
+raw_matrix <- readRDS(paste0(input_dir, "/intermediate_files/preprocessed/RNA_matrix_raw.rds"))
 
 # Create Seurat Object
 options(Seurat.object.assay.version = 'v5')
@@ -60,7 +60,7 @@ n_clusters_per_param <- data.frame(param_id = NULL,
 
 # Import clusters
 # CHOIR
-parameter_list <- "CHOIR_parameter_list_multiome_batch_revision_actual"
+parameter_list <- "CHOIR_parameter_list_multiome_batch"
 CHOIR_clusters <- read.csv(paste0(input_dir, 
                                   "/intermediate_files/clusters/compiled_clusters_", parameter_list, ".csv"))
 rownames(CHOIR_clusters) <- CHOIR_clusters$CellID
@@ -70,7 +70,7 @@ current_n_clusters <- apply(CHOIR_clusters, 2, n_distinct)
 n_clusters_per_param <- rbind(n_clusters_per_param, data.frame(param_id = names(current_n_clusters)[-1],
                                                                n_clusters = current_n_clusters[-1]))
 # CHOIR - ATAC
-parameter_list <- "CHOIR_parameter_list_ATAC_batch_GeneScoreMatrix_final"
+parameter_list <- "CHOIR_parameter_list_ATAC_batch"
 CHOIR_clusters_ATAC <- read.csv(paste0(input_dir, 
                                        "/intermediate_files/clusters/compiled_clusters_", parameter_list, ".csv"))
 rownames(CHOIR_clusters_ATAC) <- CHOIR_clusters_ATAC$CellID
@@ -90,7 +90,7 @@ current_n_clusters <- apply(CHOIR_clusters_RNA, 2, n_distinct)
 n_clusters_per_param <- rbind(n_clusters_per_param, data.frame(param_id = names(current_n_clusters)[-1],
                                                                n_clusters = current_n_clusters[-1]))
 # CHOIR - RNA - countsplit
-parameter_list <- "CHOIR_parameter_list_RNA_bpcells_countsplit_revision_batch3"
+parameter_list <- "CHOIR_parameter_list_RNA_batch_countsplit"
 CHOIR_clusters_RNA_countsplit <- read.csv(paste0(input_dir, 
                                                  "/intermediate_files/clusters/compiled_clusters_", parameter_list, ".csv"))
 rownames(CHOIR_clusters_RNA_countsplit) <- CHOIR_clusters_RNA_countsplit$CellID
@@ -115,7 +115,7 @@ current_n_clusters <- current_n_clusters[order(as.numeric(sub("Signac_ATAC_", ""
 n_clusters_per_param <- rbind(n_clusters_per_param, data.frame(param_id = names(current_n_clusters),
                                                                n_clusters = current_n_clusters))
 # Seurat - RNA
-parameter_list <- "cluster_parameter_list_Seurat_RNA_simulated_batch_revision_bpcells"
+parameter_list <- "cluster_parameter_list_Seurat_RNA_batch"
 Seurat_clusters_RNA <- read.csv(paste0(input_dir, 
                                        "/intermediate_files/clusters/compiled_clusters_", parameter_list, ".csv"))
 rownames(Seurat_clusters_RNA) <- Seurat_clusters_RNA$CellID
@@ -202,7 +202,7 @@ vals_rna_df_merged_mks %>%
   theme_classic() +
   scale_x_continuous(limits = c(0,0.8), breaks = c(0, 0.2, 0.4, 0.6, 0.8)) +
   scale_y_continuous(limits = c(0,12), breaks = c(0, 4, 8, 12))
-ggsave(paste0(input_dir, "/feature_importance_find_markers_revision.pdf"), width = 5, height = 5)
+ggsave(paste0(input_dir, "/feature_importance_find_markers.pdf"), width = 5, height = 5)
 
 # ArchR Project
 archr_proj <- readRDS(paste0(input_dir, "/intermediate_files/preprocessed/ATAC_obj_ArchR.rds"))
@@ -262,7 +262,7 @@ round(max_val,2)
 round(0.08*(max_val-min_val) + min_val,2)
 
 # Time
-CHOIR_time <- read.csv(paste0(input_dir, "/intermediate_files/clusters/compiled_time_CHOIR_parameter_list_ATAC_batch_GeneScoreMatrix_final.csv"))
+CHOIR_time <- read.csv(paste0(input_dir, "/intermediate_files/clusters/compiled_time_CHOIR_parameter_list_ATAC_batch.csv"))
 CHOIR_time$method <- "CHOIR"
 time_df <- CHOIR_time
 time_df <- time_df %>%
